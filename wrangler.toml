@@ -1,8 +1,9 @@
-name = "awwbot"
-main = "./src/server.js"
-compatibility_date="2023-05-18"
+name = "socialbot"
+type = "javascript"
+main = "./src/index.js"
+compatibility_date = "2024-12-08"
 
-# [secrets]
-# DISCORD_TOKEN
-# DISCORD_PUBLIC_KEY
-# DISCORD_APPLICATION_ID
+node_compat = true
+
+[[triggers.crons]]
+schedule = "*/5 * * * *"
