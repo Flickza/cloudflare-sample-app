@@ -52,7 +52,7 @@ export default {
     // This function is triggered every 5 minutes using a cron schedule
     if (request.method === 'GET') {
       const isLive = await isStreamerLive(env);
-      if (!isLive) {
+      if (isLive) {
         // Send a notification only if the streamer is live
         await sendDiscordNotification(env);
       }
