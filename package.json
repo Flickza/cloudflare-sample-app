@@ -6,7 +6,7 @@
   "private": true,
   "main": "src/server.js",
   "scripts": {
-    "start": "wrangler dev",
+    "start": "wrangler dev --env=local",
     "ngrok": "ngrok http 8787",
     "test": "c8 mocha test",
     "fix": "eslint --fix '**/*.js'",
@@ -31,6 +31,6 @@
     "ngrok": "^5.0.0-beta.2",
     "prettier": "^3.2.5",
     "sinon": "^19.0.2",
-    "wrangler": "^3.93.0"
+    "wrangler": "^3.101.0"
   }
 }

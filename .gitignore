@@ -4,3 +4,4 @@ coverage
 .wrangler
 wrangler.toml
 .secret
+.env
