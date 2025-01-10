@@ -1,4 +1,5 @@
 const TWITCH_USERNAME = 'miemora'; // Twitch username to monitor
+const KV_KEY = `twitch-live-status-${TWITCH_USERNAME}`; // Key for KV storage
 
 // Access environment variables directly from the `env` object
 async function fetchTwitchAccessToken(env) {
@@ -51,9 +52,19 @@ export default {
     // This function is triggered every 5 minutes using a cron schedule
     if (request.method === 'GET') {
       const isLive = await isStreamerLive(env);
-      if (isLive) {
-        // Send a notification only if the streamer is live
+      const wasLive = await env.KV.get(KV_KEY);
+      console.log(await env.KV.get(KV_KEY));
+
+      if (isLive && !wasLive) {
+        // Streamer just went live; send a notification
         await sendDiscordNotification(env);
+        await env.KV.put(KV_KEY, 'true');
+      } else if (!isLive && wasLive) {
+        // Streamer went offline; reset live status
+        await env.KV.delete(KV_KEY);
+      } else if (wasLive) {
+        // Streamer is still live; do nothing
+        return new Response('Streamer is still live.', { status: 200 });
       }
 
       return new Response('Checked live status.', { status: 200 });
