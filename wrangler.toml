@@ -1,9 +1,0 @@
-name = "socialbot"
-type = "javascript"
-main = "./src/index.js"
-compatibility_date = "2024-12-08"
-
-node_compat = true
-
-[[triggers.crons]]
-schedule = "*/5 * * * *"

@@ -16,7 +16,7 @@ async function fetchTwitchAccessToken(env) {
 }
 
 async function isStreamerLive(env) {
-  console.log(env['0'].DISCORD_WEBHOOK_URL);
+  console.log(env[0]);
   if (!env[0].TWITCH_ACCESS_TOKEN) {
     await fetchTwitchAccessToken(env);
   }
@@ -49,6 +49,7 @@ async function sendDiscordNotification(env) {
 
 export default {
   async fetch(request, env) {
+    console.log(env);
     // This function is triggered every 5 minutes using a cron schedule
     if (request.method === 'GET') {
       const isLive = await isStreamerLive(env);
