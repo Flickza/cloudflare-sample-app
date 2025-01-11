@@ -37,14 +37,33 @@ async function isStreamerLive(env) {
 
 async function sendDiscordNotification(env) {
   const payload = {
-    content: `${TWITCH_USERNAME} is live! Watch here: https://twitch.tv/${TWITCH_USERNAME}`,
+    content: `@everyone ${TWITCH_USERNAME} is live! https://twitch.tv/${TWITCH_USERNAME}`,
+    components: [
+      {
+        type: 1,
+        components: [
+          {
+            type: 2,
+            style: 5,
+            label: 'Watch Stream',
+            url: `https://twitch.tv/${TWITCH_USERNAME}`,
+          },
+        ],
+      },
+    ],
   };
 
-  await fetch(env.DISCORD_WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
+  await fetch(
+    `https://discord.com/api/v10/channels/${env.DISCORD_CHANNEL_ID}/messages`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bot ${env.DISCORD_BOT_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    },
+  );
 }
 
 export default {
@@ -53,15 +72,12 @@ export default {
     if (request.method === 'GET') {
       const isLive = await isStreamerLive(env);
       const wasLive = await env.KV.get(KV_KEY);
-      if (isLive && !wasLive) {
-        // Streamer just went live; send a notification
+      if (!isLive && !wasLive) {
         await sendDiscordNotification(env);
         await env.KV.put(KV_KEY, 'true');
       } else if (!isLive && wasLive) {
-        // Streamer went offline; reset live status
         await env.KV.delete(KV_KEY);
       } else if (wasLive) {
-        // Streamer is still live; do nothing
         return new Response('Streamer is still live.', { status: 200 });
       }
 
