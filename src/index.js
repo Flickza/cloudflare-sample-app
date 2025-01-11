@@ -72,7 +72,7 @@ export default {
     if (request.method === 'GET') {
       const isLive = await isStreamerLive(env);
       const wasLive = await env.KV.get(KV_KEY);
-      if (!isLive && !wasLive) {
+      if (isLive && !wasLive) {
         await sendDiscordNotification(env);
         await env.KV.put(KV_KEY, 'true');
       } else if (!isLive && wasLive) {
