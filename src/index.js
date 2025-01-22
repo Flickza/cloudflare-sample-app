@@ -67,23 +67,28 @@ async function sendDiscordNotification(env) {
 }
 
 export default {
-  async fetch(request, env) {
-    // This function is triggered every 5 minutes using a cron schedule
-    if (request.method === 'GET') {
-      const isLive = await isStreamerLive(env);
-      const wasLive = await env.KV.get(KV_KEY);
-      if (isLive && !wasLive) {
-        await sendDiscordNotification(env);
-        await env.KV.put(KV_KEY, 'true');
-      } else if (!isLive && wasLive) {
-        await env.KV.delete(KV_KEY);
-      } else if (wasLive) {
-        return new Response('Streamer is still live.', { status: 200 });
-      }
+  async scheduled(event, env) {
+    await checkStreamerStatus(env);
+  },
 
+  async fetch(request, env) {
+    if (request.method === 'GET') {
+      await checkStreamerStatus(env);
       return new Response('Checked live status.', { status: 200 });
     }
 
     return new Response('Not Found', { status: 404 });
   },
 };
+
+async function checkStreamerStatus(env) {
+  const isLive = await isStreamerLive(env);
+  const wasLive = await env.KV.get(KV_KEY);
+
+  if (isLive && !wasLive) {
+    await sendDiscordNotification(env);
+    await env.KV.put(KV_KEY, 'true');
+  } else if (!isLive && wasLive) {
+    await env.KV.delete(KV_KEY);
+  }
+}
